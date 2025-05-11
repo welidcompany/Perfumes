@@ -41,9 +41,20 @@
       window.scrollTo(0,0);
     }
     document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        document.getElementById('checkout-container').innerHTML =
+      document.getElementById('checkoutForm').addEventListener('submit', e => {
+  e.preventDefault();
+  // حفظ الطلب في localStorage
+  const order = {
+    whatsapp: document.getElementById('whatsapp').value.trim(),
+    product: pending.name,
+    quantity: document.getElementById('quantity').value
+  };
+  const arr = JSON.parse(localStorage.getItem('orders') || '[]');
+  arr.push(order);
+  localStorage.setItem('orders', JSON.stringify(arr));
+
+  // هنا: استبدال كامل محتوى الـ checkout-container
+  document.getElementById('checkout-container').innerHTML =
           '<div class="message">تم إرسال الطلب بنجاح<br>سيتم التواصل معك قريبًا</div>' +
           '<div class="back-links">' +
           '<a href="index.html">الرئيسية</a>' +
