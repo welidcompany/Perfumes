@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة التحكم – متجر البراء</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; padding:20px; display:none; }
+    h1 { text-align:center; color:#003366; }
+    .section { background:#fff; padding:20px; margin-bottom:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:8px; border:1px solid #ddd; text-align:center; }
+    th { background:#003366; color:#fff; }
+    button { padding:6px 12px; margin:2px; border:none; border-radius:4px; cursor:pointer; }
+    .btn-done { background:green; color:#fff; }
+    .btn-delete { background:red; color:#fff; }
+    .form-group { margin-bottom:10px; }
+    label { display:block; margin-bottom:5px; }
+    input[type="text"], input[type="number"] { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
+    #add-product button { background:#003366; color:#fff; }
+    .error { text-align:center; color:red; font-size:18px; margin-top:50px; display:none; }
+  </style>
+</head>
+<body>
+  <h1>لوحة التحكم</h1>
+
+  <div class="section">
+    <h2>الطلبات الواردة</h2>
+    <table id="orders-table">
+      <thead><tr><th>واتساب</th><th>المنتج</th><th>الكمية</th><th>إجراء</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>إدارة المنتجات</h2>
+    <table id="products-table">
+      <thead><tr><th>اسم المنتج</th><th>السعر</th><th>إجراء</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="add-product">
+      <h3>إضافة منتج</h3>
+      <div class="form-group">
+        <label>اسم المنتج:</label><input type="text" id="new-name"/>
+      </div>
+      <div class="form-group">
+        <label>السعر:</label><input type="number" id="new-price"/>
+      </div>
+      <button onclick="addProduct()">إضافة</button>
+    </div>
+  </div>
+
+  <div class="error" id="error-msg">كلمة المرور خاطئة! لن تتمكن من الدخول.</div>
+
+<script>
+(() => {
+  const pwd = prompt("أدخل كلمة المرور:");
+  if (pwd === "1234Azerazer$") {
+    document.body.style.display = 'block';
+    // Initialize data
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    let products = JSON.parse(localStorage.getItem('products') || '[]');
+
+    // Render functions
+    function renderOrders() {
+      const tb = document.querySelector('#orders-table tbody');
+      tb.innerHTML = '';
+      orders.forEach((o,i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${o.whatsapp}</td><td>${o.product}</td><td>${o.quantity}</td>
+          <td><button class="btn-done" onclick="markDone(${i})">تم</button></td>`;
+        tb.appendChild(tr);
+      });
+    }
+    function renderProducts() {
+      const tb = document.querySelector('#products-table tbody');
+      tb.innerHTML = '';
+      products.forEach((p,i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.name}</td><td>${p.price}</td>
+          <td><button class="btn-delete" onclick="deleteProduct(${i})">حذف</button></td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // Expose handlers
+    window.markDone = (i) => {
+      orders.splice(i,1);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderOrders();
+    };
+    window.addProduct = () => {
+      const name = document.getElementById('new-name').value.trim();
+      const price = document.getElementById('new-price').value.trim();
+      if (name && price) {
+        products.push({name, price});
+        localStorage.setItem('products', JSON.stringify(products));
+        renderProducts();
+        document.getElementById('new-name').value = '';
+        document.getElementById('new-price').value = '';
+      }
+    };
+    window.deleteProduct = (i) => {
+      products.splice(i,1);
+      localStorage.setItem('products', JSON.stringify(products));
+      renderProducts();
+    };
+
+    // Initial render
+    renderOrders();
+    renderProducts();
+  } else {
+    document.getElementById('error-msg').style.display = 'block';
+  }
+})();
+</script>
+</body>
+</html>
